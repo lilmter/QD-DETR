@@ -6,7 +6,8 @@ results_root=results
 exp_id=exp
 
 ######## data paths
-train_path=data/highlight_train_release.jsonl
+#train_path=data/highlight_train_release.jsonl
+train_path=data/highlight_train_release_paraphrased.jsonl
 eval_path=data/highlight_val_release.jsonl
 eval_split_name=val
 
@@ -27,7 +28,8 @@ fi
 
 # text features
 if [[ ${t_feat_type} == "clip" ]]; then
-  t_feat_dir=${feat_root}/clip_text_features/
+#  t_feat_dir=${feat_root}/clip_text_features/
+  t_feat_dir=${feat_root}/clip_aug_text_features/
   t_feat_dim=512
 else
   echo "Wrong arg for t_feat_type."

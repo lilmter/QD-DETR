@@ -87,7 +87,10 @@ class StartEndDataset(Dataset):
         meta = self.data[index]
 
         model_inputs = dict()
-        model_inputs["query_feat"] = self._get_query_feat_by_qid(meta["qid"])  # (Dq, ) or (Lq, Dq)
+        aug_id = 0
+        if meta.get('aug_id') is not None:
+            aug_id = meta['aug_id']
+        model_inputs["query_feat"] = self._get_query_feat_by_qid(meta["qid"], aug_id)  # (Dq, ) or (Lq, Dq)
         if self.use_video:
             model_inputs["video_feat"] = self._get_video_feat_by_vid(meta["vid"])  # (Lv, Dv)
             ctx_l = len(model_inputs["video_feat"])
@@ -267,13 +270,14 @@ class StartEndDataset(Dataset):
             raise NotImplementedError
         return windows
 
-    def _get_query_feat_by_qid(self, qid):
+    def _get_query_feat_by_qid(self, qid, aug_id=0):
         if self.dset_name == 'tvsum':
             q_feat = np.load(join(self.q_feat_dir, "{}.npz".format(qid))) # 'token', 'text'
             return torch.from_numpy(q_feat['token'])
         else:
             # QVhighlight dataset
-            q_feat_path = join(self.q_feat_dir, f"qid{qid}.npz")
+            aug = f"_{aug_id}" if aug_id > 0 else ""
+            q_feat_path = join(self.q_feat_dir, f"qid{qid}{aug}.npz")
             q_feat = np.load(q_feat_path)[self.q_feat_type].astype(np.float32)
             if self.q_feat_type == "last_hidden_state":
                 q_feat = q_feat[:self.max_q_l]
